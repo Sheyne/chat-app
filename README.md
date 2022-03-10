@@ -1,6 +1,7 @@
 # Running:
 
 ```bash 
+docker-compose --profile main-app build
 docker-compose --profile main-app up
 ```
 

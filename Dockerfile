@@ -19,7 +19,7 @@ RUN service postgresql start && \
    && cd /rust_build && DATABASE_URL=postgresql://root:root@localhost \
    cargo build --release
 ADD typescript typescript
-RUN cd typescript && npm run build
+RUN cd typescript && npm install && npm run build
 
 FROM debian:latest as run_container
 COPY --from=build_container /rust_build/target/release/chat_app /chat_app
