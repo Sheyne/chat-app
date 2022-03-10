@@ -9,11 +9,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      target: build_container
+      target: run_container
     env_file:
         # Ensure that the variables in .env match the same variables in devcontainer.json
         - .env
-    command: /rust_build/target/release/chat_app
+    command: /chat_app
     ports:
       - 8000:8000
     expose:
