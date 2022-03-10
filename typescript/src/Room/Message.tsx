@@ -1,7 +1,7 @@
 import "./Message.css";
 import * as React from 'react';
 
-export type MessageProps = { "key": number, "message": string, "sender": string, time: Date };
+export type MessageProps = { message: string, sender: string, time: Date };
 
 export function Message(props: MessageProps) {
   return (

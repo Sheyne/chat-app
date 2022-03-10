@@ -1,26 +1,21 @@
 #[macro_use]
 extern crate rocket;
 use anyhow::Result;
+use rocket::fs::FileServer;
 use rocket::{
-    form::{Form, FromForm},
-    response::{
-        stream::{Event, EventStream},
-        Redirect,
-    },
+    response::stream::{Event, EventStream},
     serde::json::Json,
     State,
 };
-use serde::{Deserialize, Serialize, __private::de::Content};
-use sqlx::{postgres::PgPoolOptions, Pool, Postgres};
+use serde::{Deserialize, Serialize};
+use sqlx::{postgres::PgPoolOptions, types::time::PrimitiveDateTime, Pool, Postgres};
 use std::env;
-use tokio::{
-    sync::broadcast::{self, Sender},
-    try_join,
-};
+use tokio::sync::broadcast::{self, Sender};
 
 #[derive(Clone, PartialEq, Eq, Serialize)]
 enum ChatEvent {
     NewRoom(String),
+    NewMessage(Message),
 }
 
 struct Context {
@@ -48,22 +43,132 @@ fn events(context: &State<Context>) -> EventStream![] {
     }
 }
 
-#[post("/add_room/<name>")]
-async fn add_room(name: &str, context: &State<Context>) {
+#[derive(Deserialize, Clone)]
+struct RoomName<'a> {
+    name: &'a str,
+}
+
+#[post("/add_room", data = "<name>", format = "json")]
+async fn add_room(
+    name: Json<RoomName<'_>>,
+    context: &State<Context>,
+    pool: &State<Pool<Postgres>>,
+) -> Option<Json<bool>> {
+    sqlx::query!("INSERT INTO rooms (name) VALUES ($1)", name.name)
+        .execute(&**pool)
+        .await
+        .ok()?;
+
     let _ = context
         .sender
         .clone()
-        .send(ChatEvent::NewRoom(name.to_owned()));
-    println!("Adding room {name}");
+        .send(ChatEvent::NewRoom(name.name.to_owned()));
+
+    Some(Json(true))
 }
 
-#[get("/")]
-async fn index(pool: &State<Pool<Postgres>>) -> Option<String> {
-    let rooms = sqlx::query!("SELECT * FROM rooms")
-        .fetch_one(&**pool)
-        .await
-        .ok()?;
-    Some(format!("hi {n}", n = rooms.name))
+#[derive(Deserialize, Clone)]
+struct SendMessage<'a> {
+    sender: &'a str,
+    message: &'a str,
+    room: &'a str,
+}
+
+#[post("/send_message", data = "<message>", format = "json")]
+async fn send_message(
+    message: Json<SendMessage<'_>>,
+    context: &State<Context>,
+    pool: &State<Pool<Postgres>>,
+) -> Option<Json<bool>> {
+    let message = sqlx::query_as!(
+        PostgresMessage,
+        "INSERT INTO messages (sender, message, room) VALUES ($1, $2, $3) RETURNING *",
+        message.sender,
+        message.message,
+        message.room
+    )
+    .fetch_one(&**pool)
+    .await
+    .map_err(|x| dbg!(x))
+    .ok()?;
+
+    let _ = context
+        .sender
+        .clone()
+        .send(ChatEvent::NewMessage(message.into()));
+
+    Some(Json(true))
+}
+
+#[get("/list_rooms")]
+async fn list_rooms(pool: &State<Pool<Postgres>>) -> Option<Json<Vec<String>>> {
+    let rooms = sqlx::query!(
+        "
+    SELECT name FROM rooms
+        LEFT JOIN messages ON messages.room = rooms.name
+    GROUP BY rooms.name
+    ORDER BY MAX(messages.time) DESC
+    "
+    )
+    .fetch_all(&**pool)
+    .await
+    .ok()?;
+    Some(Json(rooms.into_iter().map(|x| x.name).collect()))
+}
+
+#[derive(Serialize, Clone, Debug, PartialEq, Eq)]
+struct Message {
+    sender: String,
+    room: String,
+    message: String,
+    time: String,
+}
+
+struct PostgresMessage {
+    sender: String,
+    room: String,
+    message: String,
+    time: PrimitiveDateTime,
+}
+
+impl From<PostgresMessage> for Message {
+    fn from(m: PostgresMessage) -> Self {
+        Message {
+            sender: m.sender,
+            message: m.message,
+            time: format!(
+                "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}",
+                m.time.year(),
+                m.time.month(),
+                m.time.day(),
+                m.time.hour(),
+                m.time.minute(),
+                m.time.second()
+            ),
+            room: m.room,
+        }
+    }
+}
+
+#[get("/list_messages/<room>")]
+async fn list_messages(room: &str, pool: &State<Pool<Postgres>>) -> Option<Json<Vec<Message>>> {
+    let rooms = sqlx::query_as!(
+        PostgresMessage,
+        "
+        SELECT * FROM (
+            SELECT *
+            FROM messages
+            WHERE room = $1
+            ORDER BY time DESC
+            LIMIT 50
+        ) as x ORDER BY time ASC
+        ",
+        room
+    )
+    .fetch_all(&**pool)
+    .await
+    .ok()?;
+    Some(Json(rooms.into_iter().map(<_ as Into<_>>::into).collect()))
 }
 
 #[rocket::main]
@@ -80,7 +185,11 @@ async fn main() -> Result<()> {
     rocket::build()
         .manage(pool)
         .manage(context)
-        .mount("/", routes![index, events, add_room])
+        .mount(
+            "/",
+            routes![list_rooms, events, add_room, send_message, list_messages],
+        )
+        .mount("/", FileServer::from("./typescript/build"))
         .launch()
         .await?;
 

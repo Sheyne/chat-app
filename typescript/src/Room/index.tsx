@@ -1,54 +1,61 @@
 import "./index.css";
 import * as React from 'react';
 import { Message, MessageProps } from "./Message";
+import { request, listMessages, Message as MessageT, CHAT_EVENTS } from "../helpers";
 
 export class Room extends React.Component<{ id: string }, { roomId: string, messages: MessageProps[], message: string }> {
   messagesEnd: HTMLDivElement | null = null;
   shouldScroll = false;
+  listener: (sender: string, message: string, room: string, time: Date) => void;
 
-  constructor(props: { id: string }) {
+  constructor(props: { id: string, messageAdded: (message: MessageT) => void }) {
     super(props);
     this.state = {
       roomId: props.id,
-      messages: this.loadMessages(),
+      messages: [],
       message: "",
     };
 
+    this.listener = (sender, message, room, time) => {
+      if (room == this.props.id) {
+        const messages = this.state.messages;
+        messages.push({sender, message, time});
+        this.shouldScroll = true;
+        this.setState({messages});
+      }
+    };
 
+    CHAT_EVENTS.newMessageListeners.push(this.listener);
+
+    this.loadMessages(props.id);
   }
 
-  loadMessages() {
-    return [
-      { sender: "a", "message": "The chat box", key: 1, time: new Date() },
-      { sender: "a", "message": "Two", key: 2, time: new Date() },
-      { sender: "a", "message": "Three", key: 3, time: new Date() },
-      { sender: "a", "message": "Four", key: 4, time: new Date() },
-      { sender: "a", "message": "Five", key: 5, time: new Date() },
-      { sender: "a", "message": "Six", key: 6, time: new Date() },
-      { sender: "a", "message": "Seven", key: 7, time: new Date() },
-      { sender: "a", "message": "Eigt", key: 8, time: new Date() },
-    ];
+  async loadMessages(id: string) {
+    const messages = await listMessages(id);
+    this.setState({ "messages": messages, "roomId": id });
   }
 
   sendMessage(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    let messages = this.state.messages.slice();
-    messages.push({ "sender": "b", "message": this.state.message, key: messages.length + 5, time: new Date() })
-    this.setState({ message: "", messages: messages });
+    request("POST", "/send_message",
+      { "sender": "Timmy", "message": this.state.message, "room": this.props.id }
+    );
+
+    this.setState({ message: "" });
     this.shouldScroll = true;
   }
 
   inputChanged(e: React.ChangeEvent<HTMLInputElement>) {
     this.setState({ message: e.target.value });
-    console.log(e.target.value);
+  }
+
+  override componentWillUnmount() {
+    CHAT_EVENTS.newMessageListeners = CHAT_EVENTS.newMessageListeners.filter(e => e !== this.listener)
   }
 
   override componentDidUpdate() {
     if (this.state.roomId !== this.props.id) {
-      this.setState({
-        roomId: this.props.id,
-        messages: this.loadMessages()
-      });
+      this.loadMessages(this.props.id);
     }
 
     if (this.shouldScroll)
@@ -58,7 +65,7 @@ export class Room extends React.Component<{ id: string }, { roomId: string, mess
 
   override render() {
     let messageElements = this.state.messages.map(e =>
-      <Message message={e.message} time={e.time} sender={e.sender} key={e.key} />
+      <Message message={e.message} time={e.time} sender={e.sender} key={`${e.message}--${e.time}--${e.sender}`} />
     );
 
     return (
