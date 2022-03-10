@@ -1,5 +1,6 @@
 CREATE TABLE rooms (
-    name TEXT NOT NULL PRIMARY KEY
+    name TEXT NOT NULL PRIMARY KEY,
+    created timestamp NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE messages (

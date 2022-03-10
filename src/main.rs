@@ -107,7 +107,7 @@ async fn list_rooms(pool: &State<Pool<Postgres>>) -> Option<Json<Vec<String>>> {
     SELECT name FROM rooms
         LEFT JOIN messages ON messages.room = rooms.name
     GROUP BY rooms.name
-    ORDER BY MAX(messages.time) DESC
+    ORDER BY GREATEST(MAX(messages.time), rooms.created) DESC
     "
     )
     .fetch_all(&**pool)
