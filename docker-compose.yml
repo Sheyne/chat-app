@@ -5,6 +5,7 @@ volumes:
 
 services:
   app:
+    profiles: ['main-app']
     build:
       context: .
       dockerfile: Dockerfile

@@ -2,8 +2,8 @@
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.224.2/containers/rust-postgres
 {
 	"name": "Rust and PostgreSQL",
-	"dockerComposeFile": "docker-compose.yml",
-	"service": "app",
+	"dockerComposeFile": ["../docker-compose.yml", "docker-compose.extend.yml"],
+	"service": "dev_container",
 	"workspaceFolder": "/workspace",
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
