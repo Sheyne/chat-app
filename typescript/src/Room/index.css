@@ -1,0 +1,21 @@
+.ChatBox {
+    height: 100%;
+    width: 100%;
+    background-color: rgb(179, 255, 176);
+    display: flex;
+    flex-direction: column;
+}
+
+.ChatBox-messages {
+    overflow: scroll;
+    width: 100%;
+    height: 100%;
+}
+
+.ChatBox-sender form {
+    margin: 0.5em;
+}
+
+.ChatBox-sender {
+    width: 100%;
+}

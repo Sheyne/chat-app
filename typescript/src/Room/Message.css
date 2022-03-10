@@ -1,0 +1,29 @@
+.ChatBox-Message {
+    padding: .2em;
+    margin-bottom: 0.3em;
+    background-color: rgb(113, 226, 113);
+    flex-direction: row;
+    flex-wrap: wrap;
+    display: flex;
+}
+
+.ChatBox-Message-time {
+    font-size: 30%;
+    flex-basis: 100%;
+    color:rgb(35, 53, 35);
+}
+
+.ChatBox-Message-sender {
+    color:rgb(15, 41, 15);
+    font-style: italic;
+}
+
+.ChatBox-Message-sender::after {
+    content: ":";
+    padding-right: 0.5em;
+    color: grey;
+}
+
+.ChatBox-Message-body {
+    color:rgb(15, 41, 15);
+}

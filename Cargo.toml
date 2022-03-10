@@ -1,0 +1,17 @@
+[package]
+name = "chat_app"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = "*"
+sqlx = { version = "0.5", features = [ "runtime-tokio-native-tls" , "postgres" ] }
+anyhow = "*"
+tokio = "*"
+thiserror = "*"
+
+[dependencies.rocket]
+version = "0.5.0-rc.1"
+features = ["json"]

@@ -1,0 +1,33 @@
+.RoomList {
+    width: 10em;
+    overflow: scroll;
+    border-right: 0.5em solid grey;
+}
+
+.RoomList-room {
+    padding: 0.5em;
+    margin-bottom: 0.5em;
+    background-color: tan;
+}
+
+.RoomList-room.selected {
+    background-color: red;
+}
+
+.RoomList-addRoom {
+    padding: 0.5em;
+    margin-bottom: 0.5em;
+    background-color: tan;
+}
+
+
+.RoomList-addRoom form {
+    display: flex;
+    flex-direction: row;
+}
+
+.RoomList-addRoom form input[type=text]{
+    margin-right: 0.5em;
+    width: 100%;
+}
+
