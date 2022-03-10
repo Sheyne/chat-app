@@ -16,4 +16,5 @@ body {
 .App {
   display: flex;
   height: 100%;
+  background-color: rgb(179, 255, 176);
 }

@@ -7,7 +7,7 @@ edition = "2021"
 
 [dependencies]
 serde = "*"
-sqlx = { version = "0.5", features = [ "runtime-tokio-native-tls" , "postgres", "time" ] }
+sqlx = { version = "0.5", features = [ "runtime-tokio-rustls" , "postgres", "time" ] }
 anyhow = "*"
 tokio = "*"
 thiserror = "*"

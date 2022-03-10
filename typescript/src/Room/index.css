@@ -1,7 +1,6 @@
 .ChatBox {
     height: 100%;
     width: 100%;
-    background-color: rgb(179, 255, 176);
     display: flex;
     flex-direction: column;
 }
@@ -14,8 +13,16 @@
 
 .ChatBox-sender form {
     margin: 0.5em;
+    display: flex;
+    flex-direction: row;
+}
+
+.ChatBox-sender form input[type='text'] {
+    width: 100%;
 }
 
 .ChatBox-sender {
     width: 100%;
+    background-color: rgb(155, 223, 153);
+    ;
 }

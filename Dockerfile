@@ -8,3 +8,21 @@ RUN apt-get update && export DEBIAN_FRONTEND=noninteractive \
    && apt-get -y install clang lld npm postgresql musl-tools \
    && apt-get autoremove -y && apt-get clean -y \
    && npm install -g typescript
+
+FROM dev_container as build_container
+ADD database.sql /
+RUN mkdir -p /rust_build/src
+ADD Cargo.toml Cargo.lock /rust_build/
+ADD src /rust_build/src
+RUN service postgresql start && \
+   sudo -u postgres createdb root && \
+   sudo -u postgres createuser root && \
+   psql -c "alter user root password 'root';" && psql -f /database.sql \
+   && cd /rust_build && DATABASE_URL=postgresql://root:root@localhost \
+   cargo build --release
+ADD typescript typescript
+
+# FROM ubuntu:latest
+# COPY --from=build_container /rust_build/target/release/chat_app /chat_app
+# CMD ["/chat_app"]
+

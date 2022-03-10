@@ -8,19 +8,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      target: dev_container
       args:
         # Use the VARIANT arg to pick a Debian OS version: buster, bullseye
         # Use bullseye when on local on arm64/Apple Silicon.
         VARIANT:  bullseye
     env_file:
-        # Ensure that the variables in .env match the same variables in devcontainer.json
         - .env
-    # Security Opt and cap_add for C++ based debuggers to work.
-    # See `runArgs`: https://github.com/Microsoft/vscode-docs/blob/main/docs/remote/devcontainerjson-reference.md
-    # security_opt:
-    #   - seccomp:unconfined
-    # cap_add:
-    #   - SYS_PTRACE
 
     volumes:
       - ..:/workspace:cached
@@ -31,12 +25,6 @@ services:
     # Runs app on the same network as the database container, allows "forwardPorts" in devcontainer.json function.
     network_mode: service:db
 
-    # Uncomment the next line to use a non-root user for all processes.
-    # user: vscode
-
-    # Use "forwardPorts" in **devcontainer.json** to forward an app port locally. 
-    # (Adding the "ports" property to this file will not forward from a Codespace.)
-
   db:
     image: postgres:14.1
     restart: unless-stopped
@@ -45,6 +33,3 @@ services:
     env_file:
         # Ensure that the variables in .env match the same variables in devcontainer.json
         - .env
-
-    # Add "forwardPorts": ["5432"] to **devcontainer.json** to forward PostgreSQL locally.
-    # (Adding the "ports" property to this file will not forward from a Codespace.)

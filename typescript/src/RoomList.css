@@ -1,23 +1,30 @@
 .RoomList {
     width: 10em;
     overflow: scroll;
-    border-right: 0.5em solid grey;
+    border-right: .1em solid rgb(2, 167, 0);
 }
 
 .RoomList-room {
     padding: 0.5em;
-    margin-bottom: 0.5em;
-    background-color: tan;
+    background-color: rgb(110, 214, 122);
+}
+
+.RoomList-room :hover {
+    background-color: rgb(127, 245, 141);
 }
 
 .RoomList-room.selected {
-    background-color: red;
+    background-color: rgb(56, 175, 0);
+}
+
+.RoomList-room.selected :hover {
+    background-color: rgb(67, 211, 0);
 }
 
 .RoomList-addRoom {
     padding: 0.5em;
     margin-bottom: 0.5em;
-    background-color: tan;
+    background-color: rgb(110, 214, 122);
 }
 
 
