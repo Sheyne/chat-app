@@ -6,13 +6,15 @@ export function Login(props: { onLogin: (username: string) => void }) {
   const [username, setUsername] = useState("");
 
   return (
-    <form className="Login" onSubmit={e => {
+    <div className="Login">
+    <form onSubmit={e => {
       e.preventDefault();
       props.onLogin(username);
     }}>
-      <input type="text" value={username} onChange={e => setUsername(e.target.value)} />
-      <input type="submit" />
+      <label>Enter Username: <input type="text" value={username} onChange={e => setUsername(e.target.value)} /></label>
+      <input type="submit" value="Login" />
     </form>
+    </div>
   );
 }
 export default Login;

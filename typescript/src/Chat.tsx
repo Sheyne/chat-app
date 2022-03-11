@@ -8,6 +8,7 @@ function Chat(props: { username: string, onLogout: () => void }) {
   const [shouldSetCurrentRoom, setShouldSetCurrentRoom] = useState(false);
   const [currentRoom, setCurrentRoom] = useState("");
   const [rooms, setRooms] = useState(null as string[] | null);
+  const [shouldShowRoomList, setShouldShowRoomList] = useState(true);
 
   const updateRoomList = async () => {
     const rooms = await request("GET", "/list_rooms") as string[];
@@ -35,19 +36,28 @@ function Chat(props: { username: string, onLogout: () => void }) {
 
   CHAT_EVENTS.start();
 
+  const roomlist = shouldShowRoomList ? [(
+    <RoomList
+      onAddRoom={async room => {
+        setShouldSetCurrentRoom(true);
+        await request("POST", "/add_room", { name: room });
+      }}
+      onSelectionChanged={room => setCurrentRoom(room)}
+      rooms={rooms ?? []}
+      currentRoom={currentRoom}
+    />
+  )] : [];
+
   return (
     <div className='Chat'>
-      <div className="Chat-header">Welcome: {props.username} <input type="button" value="Logout" onClick={() => props.onLogout()} /></div>
+      <div className="Chat-header">
+        <label>Should Rooms: <input type="checkbox"
+          checked={shouldShowRoomList}
+          onChange={e => setShouldShowRoomList(e.target.checked)} />
+        </label>
+        Welcome: {props.username} <input type="button" value="Logout" onClick={() => props.onLogout()} /></div>
       <div className="Chat-rest">
-        <RoomList
-          onAddRoom={async room => {
-            setShouldSetCurrentRoom(true);
-            await request("POST", "/add_room", { name: room });
-          }}
-          onSelectionChanged={room => setCurrentRoom(room)}
-          rooms={rooms ?? []}
-          currentRoom={currentRoom}
-        />
+        {roomlist}
         <Room id={currentRoom} username={props.username} />
       </div>
     </div>

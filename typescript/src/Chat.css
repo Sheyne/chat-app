@@ -5,6 +5,10 @@
   flex-direction: column;
 }
 
+.Chat-header label {
+  float: left;
+}
+
 .Chat-header {
   background-color: rgb(2, 167, 0);
   padding: 0.5em;
