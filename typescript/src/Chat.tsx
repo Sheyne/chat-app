@@ -1,11 +1,11 @@
 import "./Chat.css";
 import { Room } from "./Room/index";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import RoomList from "./RoomList";
 import { request, CHAT_EVENTS } from "./helpers";
 
 function Chat(props: { username: string; onLogout: () => void }) {
-  const [shouldSetCurrentRoom, setShouldSetCurrentRoom] = useState(false);
+  const shouldSetCurrentRoom = useRef(false);
   const [currentRoom, setCurrentRoom] = useState("");
   const [rooms, setRooms] = useState(null as string[] | null);
   const [shouldShowRoomList, setShouldShowRoomList] = useState(true);
@@ -13,10 +13,10 @@ function Chat(props: { username: string; onLogout: () => void }) {
   const updateRoomList = async () => {
     const rooms = (await request("GET", "/list_rooms")) as string[];
     setRooms(rooms);
-    if (shouldSetCurrentRoom || currentRoom === "") {
+    if (shouldSetCurrentRoom.current || currentRoom === "") {
       if (rooms[0]) {
         setCurrentRoom(rooms[0]);
-        setShouldSetCurrentRoom(false);
+        shouldSetCurrentRoom.current = false;
       }
     }
   };
@@ -39,7 +39,7 @@ function Chat(props: { username: string; onLogout: () => void }) {
     ? [
         <RoomList
           onAddRoom={async (room) => {
-            setShouldSetCurrentRoom(true);
+            shouldSetCurrentRoom.current = true;
             await request("POST", "/add_room", { name: room });
           }}
           onSelectionChanged={(room) => setCurrentRoom(room)}
