@@ -1,66 +1,56 @@
 import './Chat.css';
 import { Room } from "./Room/index";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import RoomList from './RoomList';
 import { request, CHAT_EVENTS } from "./helpers";
 
-class Chat extends React.Component<{ username: string, onLogout: ()=>void }, { currentRoom: string, rooms: string[] }> {
-  resetCurrentRoom = true;
-  updateRoomList: () => void;
+function Chat(props: { username: string, onLogout: () => void }) {
+  const [shouldSetCurrentRoom, setShouldSetCurrentRoom] = useState(false);
+  const [currentRoom, setCurrentRoom] = useState("");
+  const [rooms, setRooms] = useState(null as string[] | null);
 
-  constructor(props: { username: string, onLogout: ()=>void }) {
-    super(props);
-
-    this.updateRoomList = async () => {
-      const rooms = await request("GET", "/list_rooms");
-      let state = { "rooms": rooms as string[] };
-      if (this.resetCurrentRoom || this.state.currentRoom === "") {
-        this.setState({ ...state, currentRoom: state.rooms[0]! });
-      } else {
-        this.setState(state);
+  const updateRoomList = async () => {
+    const rooms = await request("GET", "/list_rooms") as string[];
+    setRooms(rooms);
+    if (shouldSetCurrentRoom || currentRoom === "") {
+      if (rooms[0]) {
+        setCurrentRoom(rooms[0])
+        setShouldSetCurrentRoom(false);
       }
-      this.resetCurrentRoom = false;
-    };
-
-    this.updateRoomList();
-
-
-    CHAT_EVENTS.addEventListener("newMessage", this.updateRoomList);
-    CHAT_EVENTS.addEventListener("newRoom", this.updateRoomList);
-
-    CHAT_EVENTS.start();
-
-    this.state = {
-      currentRoom: "",
-      rooms: []
     }
-  }
+  };
 
-  override componentWillUnmount() {
-    CHAT_EVENTS.removeEventListener("newMessage", this.updateRoomList);
-    CHAT_EVENTS.removeEventListener("newRoom", this.updateRoomList);
-  }
+  if (rooms === null)
+    updateRoomList();
 
-  setCurrentRoom(room: string) {
-    this.setState({ "currentRoom": room });
-  }
+  useEffect(() => {
+    CHAT_EVENTS.addEventListener("newMessage", updateRoomList);
+    CHAT_EVENTS.addEventListener("newRoom", updateRoomList);
 
-  override render() {
-    return (
-      <div className='Chat'>
-        <div className="Chat-header">Welcome: {this.props.username} <input type="button" value="Logout" onClick={()=>this.props.onLogout()} /></div>
-        <div className="Chat-rest">
-          <RoomList
-            onAddRoom={async room => {
-              this.resetCurrentRoom = true;
-              await request("POST", "/add_room", { name: room });
-            }}
-            onSelectionChanged={room => this.setCurrentRoom(room)}
-            rooms={this.state.rooms} />
-          <Room id={this.state.currentRoom} username={this.props.username} />
-        </div>
+    return () => {
+      CHAT_EVENTS.removeEventListener("newMessage", updateRoomList);
+      CHAT_EVENTS.removeEventListener("newRoom", updateRoomList);
+    };
+  });
+
+  CHAT_EVENTS.start();
+
+  return (
+    <div className='Chat'>
+      <div className="Chat-header">Welcome: {props.username} <input type="button" value="Logout" onClick={() => props.onLogout()} /></div>
+      <div className="Chat-rest">
+        <RoomList
+          onAddRoom={async room => {
+            setShouldSetCurrentRoom(true);
+            await request("POST", "/add_room", { name: room });
+          }}
+          onSelectionChanged={room => setCurrentRoom(room)}
+          rooms={rooms ?? []}
+          currentRoom={currentRoom}
+        />
+        <Room id={currentRoom} username={props.username} />
       </div>
-    );
-  }
+    </div>
+  );
 }
 export default Chat;

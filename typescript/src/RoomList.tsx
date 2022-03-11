@@ -5,29 +5,23 @@ export function RoomList(props: {
   onSelectionChanged: (name: string) => void;
   onAddRoom: (name: string) => void;
   rooms: string[];
+  currentRoom: string;
 }) {
-
-  const [selected, setSelected_] = useState(props.rooms[0]!);
   const [newRoomName, setNewRoomName] = useState("");
-
-  const setSelected = (name: string) => {
-    setSelected_(name);
-    props.onSelectionChanged(name);
-  }
 
   const addRoom = (e: React.FormEvent) => {
     e.preventDefault();
     if (newRoomName) {
       props.onAddRoom(newRoomName);
-      setSelected(newRoomName);
+      props.onSelectionChanged(newRoomName);
     }
     setNewRoomName("");
   }
 
   const rooms = props.rooms.map(name => <div
     key={name}
-    onClick={() => setSelected(name)}
-    className={`RoomList-room ${name === selected ? "selected" : ""
+    onClick={() => props.onSelectionChanged(name)}
+    className={`RoomList-room ${name === props.currentRoom ? "selected" : ""
       }`}>{name}</div>)
 
   return (
