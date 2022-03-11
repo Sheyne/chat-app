@@ -1,14 +1,14 @@
 import "./index.css";
 import * as React from 'react';
 import { Message, MessageProps } from "./Message";
-import { request, listMessages, Message as MessageT, CHAT_EVENTS } from "../helpers";
+import { request, listMessages, CHAT_EVENTS } from "../helpers";
 
-export class Room extends React.Component<{ id: string }, { roomId: string, messages: MessageProps[], message: string }> {
+export class Room extends React.Component<{ id: string, username: string }, { roomId: string, messages: MessageProps[], message: string }> {
   messagesEnd: HTMLDivElement | null = null;
   shouldScroll = false;
   listener: (sender: string, message: string, room: string, time: Date) => void;
 
-  constructor(props: { id: string, messageAdded: (message: MessageT) => void }) {
+  constructor(props: { id: string, username: string }) {
     super(props);
     this.state = {
       roomId: props.id,
@@ -17,7 +17,7 @@ export class Room extends React.Component<{ id: string }, { roomId: string, mess
     };
 
     this.listener = (sender, message, room, time) => {
-      if (room == this.props.id) {
+      if (room === this.props.id) {
         const messages = this.state.messages;
         messages.push({sender, message, time});
         this.shouldScroll = true;
@@ -25,7 +25,7 @@ export class Room extends React.Component<{ id: string }, { roomId: string, mess
       }
     };
 
-    CHAT_EVENTS.newMessageListeners.push(this.listener);
+    CHAT_EVENTS.addEventListener("newMessage", this.listener);
 
     this.loadMessages(props.id);
   }
@@ -38,7 +38,7 @@ export class Room extends React.Component<{ id: string }, { roomId: string, mess
   sendMessage(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     request("POST", "/send_message",
-      { "sender": "Timmy", "message": this.state.message, "room": this.props.id }
+      { "sender": this.props.username, "message": this.state.message, "room": this.props.id }
     );
 
     this.setState({ message: "" });
@@ -50,7 +50,7 @@ export class Room extends React.Component<{ id: string }, { roomId: string, mess
   }
 
   override componentWillUnmount() {
-    CHAT_EVENTS.newMessageListeners = CHAT_EVENTS.newMessageListeners.filter(e => e !== this.listener)
+    CHAT_EVENTS.removeEventListener("newMessage", this.listener);
   }
 
   override componentDidUpdate() {

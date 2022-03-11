@@ -1,0 +1,17 @@
+.Chat {
+  display: flex;
+  height: 100%;
+  background-color: rgb(179, 255, 176);
+  flex-direction: column;
+}
+
+.Chat-header {
+  background-color: rgb(2, 167, 0);
+  padding: 0.5em;
+  font-size: 110%;
+  text-align: right;
+}
+.Chat-rest {
+  display: flex;
+  height: 100%;
+}

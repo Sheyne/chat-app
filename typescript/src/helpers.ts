@@ -12,18 +12,23 @@ export const parseMessage = (message: unknown): Message => {
 };
 
 export class ChatEvents {
-    newRoomListeners: ((name: string)=>void)[];
-    newMessageListeners: ((sender: string, message: string, room: string, time: Date) => void)[];
+    private newRoomListeners: ((name: string) => void)[];
+    private newMessageListeners: ((sender: string, message: string, room: string, time: Date) => void)[];
 
+    running: boolean;
 
     constructor() {
         this.newRoomListeners = [];
         this.newMessageListeners = [];
+        this.running = false;
     }
 
     async start() {
+        if (this.running)
+            return;
+        this.running = true;
         const evtSource = new EventSource("/events");
-    
+
         evtSource.onmessage = (event) => {
             const packet = JSON.parse(event.data);
             if (packet["NewMessage"]) {
@@ -36,7 +41,21 @@ export class ChatEvents {
             }
         };
     }
-    
+
+    addEventListener(event: "newRoom", listener: (name: string) => void): void;
+    addEventListener(event: "newMessage", listener: (sender: string, message: string, room: string, time: Date) => void): void;
+    addEventListener(event: string, listener: (...args: any[]) => void) {
+        let listeners = event === "newRoom" ? this.newRoomListeners : (
+            event === "newMessage" ? this.newMessageListeners : undefined);
+        listeners?.push(listener);
+    }
+
+    removeEventListener(event: "newRoom", listener: (name: string) => void): void;
+    removeEventListener(event: "newMessage", listener: (sender: string, message: string, room: string, time: Date) => void): void;
+    removeEventListener(event: "newRoom" | "newMessage", listener: (...args: any[]) => void) {
+        const key = `${event}Listeners`;
+        (this as any)[key] = (this as any)[key].filter((e: any) => e !== listener);
+    }
 };
 
 export const CHAT_EVENTS = new ChatEvents();
