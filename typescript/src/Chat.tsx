@@ -51,7 +51,7 @@ function Chat(props: { username: string, onLogout: () => void }) {
   return (
     <div className='Chat'>
       <div className="Chat-header">
-        <label>Should Rooms: <input type="checkbox"
+        <label>Show Rooms: <input type="checkbox"
           checked={shouldShowRoomList}
           onChange={e => setShouldShowRoomList(e.target.checked)} />
         </label>
