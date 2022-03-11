@@ -5,7 +5,7 @@ import { request, listMessages, CHAT_EVENTS } from "../helpers";
 
 export function Room(props: { id: string, username: string }) {
   const [roomId, setRoomId] = useState(props.id);
-  const [messages, setMessages] = useState([{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()},{message: "a", sender: "a", time: new Date()}] as MessageProps[]);
+  const [messages, setMessages] = useState([] as MessageProps[]);
   const [message, setMessage] = useState("");
 
   let messagesEnd = createRef<HTMLDivElement>();

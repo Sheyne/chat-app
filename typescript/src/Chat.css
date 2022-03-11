@@ -12,10 +12,10 @@
 .Chat-header {
   background-color: rgb(2, 167, 0);
   padding: 0.5em;
-  font-size: 110%;
+  height: 1.25em;
   text-align: right;
 }
 .Chat-rest {
   display: flex;
-  height: 100%;
+  height: calc(100% - 2.25em);
 }
