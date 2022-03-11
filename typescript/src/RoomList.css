@@ -1,40 +1,38 @@
 .RoomList {
-    width: 10em;
-    overflow: scroll;
-    border-right: .1em solid rgb(2, 167, 0);
+  width: 10em;
+  overflow: scroll;
+  border-right: 0.1em solid rgb(2, 167, 0);
 }
 
 .RoomList-room {
-    padding: 0.5em;
-    background-color: rgb(110, 214, 122);
+  padding: 0.5em;
+  background-color: rgb(110, 214, 122);
 }
 
 .RoomList-room :hover {
-    background-color: rgb(127, 245, 141);
+  background-color: rgb(127, 245, 141);
 }
 
 .RoomList-room.selected {
-    background-color: rgb(56, 175, 0);
+  background-color: rgb(56, 175, 0);
 }
 
 .RoomList-room.selected :hover {
-    background-color: rgb(67, 211, 0);
+  background-color: rgb(67, 211, 0);
 }
 
 .RoomList-addRoom {
-    padding: 0.5em;
-    margin-bottom: 0.5em;
-    background-color: rgb(110, 214, 122);
+  padding: 0.5em;
+  margin-bottom: 0.5em;
+  background-color: rgb(110, 214, 122);
 }
-
 
 .RoomList-addRoom form {
-    display: flex;
-    flex-direction: row;
+  display: flex;
+  flex-direction: row;
 }
 
-.RoomList-addRoom form input[type=text]{
-    margin-right: 0.5em;
-    width: 100%;
+.RoomList-addRoom form input[type="text"] {
+  margin-right: 0.5em;
+  width: 100%;
 }
-

@@ -1,5 +1,5 @@
-import './RoomList.css';
-import React, { useState } from 'react';
+import "./RoomList.css";
+import React, { useState } from "react";
 
 export function RoomList(props: {
   onSelectionChanged: (name: string) => void;
@@ -16,24 +16,34 @@ export function RoomList(props: {
       props.onSelectionChanged(newRoomName);
     }
     setNewRoomName("");
-  }
+  };
 
-  const rooms = props.rooms.map(name => <div
-    key={name}
-    onClick={() => props.onSelectionChanged(name)}
-    className={`RoomList-room ${name === props.currentRoom ? "selected" : ""
-      }`}>{name}</div>)
+  const rooms = props.rooms.map((name) => (
+    <div
+      key={name}
+      onClick={() => props.onSelectionChanged(name)}
+      className={`RoomList-room ${
+        name === props.currentRoom ? "selected" : ""
+      }`}
+    >
+      {name}
+    </div>
+  ));
 
   return (
-    <div className="RoomList" >
+    <div className="RoomList">
       {rooms}
-      < div className='RoomList-addRoom' >
-        <form onSubmit={e => addRoom(e)}>
-          <input type="text" onChange={e => setNewRoomName(e.target.value)} value={newRoomName} />
+      <div className="RoomList-addRoom">
+        <form onSubmit={(e) => addRoom(e)}>
+          <input
+            type="text"
+            onChange={(e) => setNewRoomName(e.target.value)}
+            value={newRoomName}
+          />
           <input type="submit" value="+" />
         </form>
       </div>
-    </div >
+    </div>
   );
 }
 
