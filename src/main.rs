@@ -48,7 +48,7 @@ struct RoomName<'a> {
     name: &'a str,
 }
 
-#[post("/add_room", data = "<name>", format = "json")]
+#[post("/rooms", data = "<name>", format = "json")]
 async fn add_room(
     name: Json<RoomName<'_>>,
     context: &State<Context>,
@@ -74,7 +74,7 @@ struct SendMessage<'a> {
     room: &'a str,
 }
 
-#[post("/send_message", data = "<message>", format = "json")]
+#[post("/messages", data = "<message>", format = "json")]
 async fn send_message(
     message: Json<SendMessage<'_>>,
     context: &State<Context>,
@@ -100,7 +100,7 @@ async fn send_message(
     Some(Json(true))
 }
 
-#[get("/list_rooms")]
+#[get("/rooms")]
 async fn list_rooms(pool: &State<Pool<Postgres>>) -> Option<Json<Vec<String>>> {
     let rooms = sqlx::query!(
         "
@@ -150,7 +150,7 @@ impl From<PostgresMessage> for Message {
     }
 }
 
-#[get("/list_messages/<room>")]
+#[get("/messages/<room>")]
 async fn list_messages(room: &str, pool: &State<Pool<Postgres>>) -> Option<Json<Vec<Message>>> {
     let rooms = sqlx::query_as!(
         PostgresMessage,

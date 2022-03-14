@@ -118,7 +118,7 @@ export const listMessages = async (room?: string): Promise<Message[]> => {
   if (room) {
     let messages = await request(
       "GET",
-      `/list_messages/${encodeURIComponent(room)}`
+      `/messages/${encodeURIComponent(room)}`
     );
     return (messages as any[]).map((m) => parseMessage(m));
   }

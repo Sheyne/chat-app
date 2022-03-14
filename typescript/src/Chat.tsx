@@ -11,7 +11,7 @@ function Chat(props: { username: string; onLogout: () => void }) {
   const [shouldShowRoomList, setShouldShowRoomList] = useState(true);
 
   const updateRoomList = async () => {
-    const rooms = (await request("GET", "/list_rooms")) as string[];
+    const rooms = (await request("GET", "/rooms")) as string[];
     setRooms(rooms);
     if (shouldSetCurrentRoom.current || currentRoom === "") {
       if (rooms[0]) {
@@ -40,7 +40,7 @@ function Chat(props: { username: string; onLogout: () => void }) {
         <RoomList
           onAddRoom={async (room) => {
             shouldSetCurrentRoom.current = true;
-            await request("POST", "/add_room", { name: room });
+            await request("POST", "/rooms", { name: room });
           }}
           onSelectionChanged={(room) => setCurrentRoom(room)}
           rooms={rooms ?? []}

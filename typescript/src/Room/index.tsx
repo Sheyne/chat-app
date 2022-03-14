@@ -39,7 +39,7 @@ export function Room(props: { id: string; username: string }) {
 
   const sendMessage = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    request("POST", "/send_message", {
+    request("POST", "/messages", {
       sender: props.username,
       message: message,
       room: props.id,
